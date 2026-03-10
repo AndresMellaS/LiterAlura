@@ -31,34 +31,34 @@ Catálogo de libros del dominio público construido con **Spring Boot**, consumi
 ## Capturas
 
 ### Consola — Menú principal
-![Menú consola](assets/01-consola-menu.png)
+![Menú consola](assets/consola-menu.png)
 
 ### Consola — Búsqueda de libro
-![Búsqueda consola](assets/10-consola-buscar.png)
+![Búsqueda consola](assets/consola-buscar.png)
 
 ### Consola — Top 10 más descargados
-![Top 10 consola](assets/02-consola-top10.png)
+![Top 10 consola](assets/consola-top10.png)
 
 ### Consola — Autores vivos en un año
-![Autores vivos consola](assets/03-consola-autores-vivos.png)
+![Autores vivos consola](assets/consola-autores-vivos.png)
 
 ### Frontend — Inicio con estadísticas
-![Frontend inicio](assets/04-frontend-inicio.png)
+![Frontend inicio](assets/frontend-inicio.png)
 
 ### Frontend — Búsqueda de libro
-![Frontend búsqueda](assets/05-frontend-buscar.png)
+![Frontend búsqueda](assets/frontend-buscar.png)
 
 ### Frontend — Top 10
-![Frontend top 10](assets/06-frontend-top10.png)
+![Frontend top 10](assets/frontend-top10.png)
 
 ### API REST — GET /api/libros/top10 (Postman)
-![Postman top10](assets/07-postman-top10.png)
+![Postman top10](assets/postman-top10.png)
 
 ### API REST — GET /api/autores/vivos/{año} (Postman)
-![Postman autores vivos](assets/08-postman-autores-vivos.png)
+![Postman autores vivos](assets/postman-autores-vivos.png)
 
 ### API REST — POST /api/libros/buscar (Postman)
-![Postman buscar](assets/09-postman-buscar.png)
+![Postman buscar](assets/postman-buscar.png)
 
 ---
 
