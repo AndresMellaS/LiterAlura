@@ -2,6 +2,7 @@ package com.example.literalura.model;
 
 import com.example.literalura.dto.DatosLibro;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 
 @Entity
@@ -19,7 +20,7 @@ public class Libro {
 
     @ManyToOne
     @JoinColumn(name = "autor_id")
-    @JsonBackReference
+    @JsonIgnoreProperties("libros")
     private Autor autor;
 
     public Libro(){}
