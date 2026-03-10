@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>LiterAlura</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+          --bg:        #0e0e0e;
+          --surface:   #161616;
+          --border:    #2a2a2a;
+          --gold:      #c9a84c;
+          --gold-dim:  #8a6e2f;
+          --text:      #e8e0d0;
+          --muted:     #6b6458;
+          --red:       #c0392b;
+          --green:     #27ae60;
+        }
+
+        body {
+          background: var(--bg);
+          color: var(--text);
+          font-family: 'DM Mono', monospace;
+          font-size: 13px;
+          min-height: 100vh;
+          overflow-x: hidden;
+        }
+
+        /* ── HEADER ── */
+        header {
+          border-bottom: 1px solid var(--border);
+          padding: 2.5rem 3rem 2rem;
+          display: flex;
+          align-items: flex-end;
+          gap: 2rem;
+          position: relative;
+        }
+        header::before {
+          content: '';
+          position: absolute;
+          inset: 0;
+          background: radial-gradient(ellipse at 20% 50%, rgba(201,168,76,0.05) 0%, transparent 70%);
+          pointer-events: none;
+        }
+        .logo {
+          font-family: 'Playfair Display', serif;
+          font-size: 2.8rem;
+          font-weight: 700;
+          color: var(--gold);
+          letter-spacing: -1px;
+          line-height: 1;
+        }
+        .logo span {
+          font-style: italic;
+          font-weight: 400;
+          color: var(--text);
+        }
+        .tagline {
+          color: var(--muted);
+          font-size: 11px;
+          letter-spacing: 0.15em;
+          text-transform: uppercase;
+          padding-bottom: 4px;
+        }
+        .api-status {
+          margin-left: auto;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          font-size: 11px;
+          color: var(--muted);
+          padding-bottom: 4px;
+        }
+        .status-dot {
+          width: 7px; height: 7px;
+          border-radius: 50%;
+          background: var(--muted);
+          transition: background 0.3s;
+        }
+        .status-dot.online  { background: var(--green); box-shadow: 0 0 6px var(--green); }
+        .status-dot.offline { background: var(--red);   box-shadow: 0 0 6px var(--red); }
+
+        /* ── LAYOUT ── */
+        .app {
+          display: grid;
+          grid-template-columns: 260px 1fr;
+          min-height: calc(100vh - 110px);
+        }
+
+        /* ── SIDEBAR ── */
+        nav {
+          border-right: 1px solid var(--border);
+          padding: 2rem 0;
+          position: sticky;
+          top: 0;
+          height: calc(100vh - 110px);
+          overflow-y: auto;
+        }
+        .nav-section {
+          padding: 0 1.5rem;
+          margin-bottom: 2rem;
+        }
+        .nav-label {
+          font-size: 9px;
+          letter-spacing: 0.2em;
+          text-transform: uppercase;
+          color: var(--muted);
+          margin-bottom: 0.75rem;
+          padding-left: 4px;
+        }
+        .nav-btn {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          width: 100%;
+          padding: 9px 12px;
+          background: none;
+          border: 1px solid transparent;
+          border-radius: 4px;
+          color: var(--muted);
+          font-family: 'DM Mono', monospace;
+          font-size: 12px;
+          cursor: pointer;
+          text-align: left;
+          transition: all 0.15s;
+          margin-bottom: 2px;
+        }
+        .nav-btn:hover  { color: var(--text); background: rgba(255,255,255,0.03); }
+        .nav-btn.active { color: var(--gold); border-color: var(--gold-dim); background: rgba(201,168,76,0.06); }
+        .nav-btn .icon  { font-size: 14px; width: 18px; text-align: center; flex-shrink: 0; }
+        .nav-btn .method {
+          margin-left: auto;
+          font-size: 9px;
+          padding: 2px 5px;
+          border-radius: 2px;
+          font-weight: 500;
+        }
+        .method.get  { background: rgba(39,174,96,0.15);  color: #27ae60; }
+        .method.post { background: rgba(52,152,219,0.15); color: #3498db; }
+
+        /* ── MAIN ── */
+        main {
+          padding: 2.5rem 3rem;
+          max-width: 900px;
+        }
+
+        .panel {
+          display: none;
+          animation: fadeIn 0.2s ease;
+        }
+        .panel.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+        .panel-header {
+          margin-bottom: 2rem;
+          padding-bottom: 1.5rem;
+          border-bottom: 1px solid var(--border);
+        }
+        .panel-title {
+          font-family: 'Playfair Display', serif;
+          font-size: 1.6rem;
+          color: var(--text);
+          margin-bottom: 0.4rem;
+        }
+        .panel-subtitle { color: var(--muted); font-size: 11px; letter-spacing: 0.05em; }
+        .endpoint-tag {
+          display: inline-block;
+          margin-top: 0.5rem;
+          font-size: 11px;
+          color: var(--gold-dim);
+          letter-spacing: 0.05em;
+        }
+
+        /* ── FORM ELEMENTS ── */
+        .input-row {
+          display: flex;
+          gap: 10px;
+          margin-bottom: 1.5rem;
+        }
+        input[type="text"], input[type="number"], select {
+          background: var(--surface);
+          border: 1px solid var(--border);
+          border-radius: 4px;
+          color: var(--text);
+          font-family: 'DM Mono', monospace;
+          font-size: 13px;
+          padding: 10px 14px;
+          outline: none;
+          flex: 1;
+          transition: border-color 0.15s;
+        }
+        input:focus, select:focus { border-color: var(--gold-dim); }
+        select option { background: var(--surface); }
+
+        .btn {
+          padding: 10px 20px;
+          border: 1px solid var(--gold-dim);
+          border-radius: 4px;
+          background: rgba(201,168,76,0.08);
+          color: var(--gold);
+          font-family: 'DM Mono', monospace;
+          font-size: 12px;
+          cursor: pointer;
+          transition: all 0.15s;
+          white-space: nowrap;
+          letter-spacing: 0.05em;
+        }
+        .btn:hover   { background: rgba(201,168,76,0.15); }
+        .btn:active  { transform: translateY(1px); }
+        .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+        .btn.danger  { border-color: #8a3a2f; color: #c0392b; background: rgba(192,57,43,0.08); }
+        .btn.danger:hover { background: rgba(192,57,43,0.15); }
+
+        /* ── RESULTS ── */
+        .results { margin-top: 1rem; }
+
+        .empty-state {
+          text-align: center;
+          padding: 3rem;
+          color: var(--muted);
+          border: 1px dashed var(--border);
+          border-radius: 6px;
+        }
+        .empty-state .empty-icon { font-size: 2rem; margin-bottom: 0.5rem; }
+
+        .card-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+          gap: 1rem;
+        }
+
+        .card {
+          background: var(--surface);
+          border: 1px solid var(--border);
+          border-radius: 6px;
+          padding: 1.25rem;
+          transition: border-color 0.15s;
+          position: relative;
+          overflow: hidden;
+        }
+        .card::before {
+          content: '';
+          position: absolute;
+          top: 0; left: 0; right: 0;
+          height: 2px;
+          background: linear-gradient(90deg, var(--gold-dim), transparent);
+          opacity: 0;
+          transition: opacity 0.15s;
+        }
+        .card:hover { border-color: var(--gold-dim); }
+        .card:hover::before { opacity: 1; }
+
+        .card-title {
+          font-family: 'Playfair Display', serif;
+          font-size: 1rem;
+          color: var(--text);
+          margin-bottom: 0.75rem;
+          line-height: 1.3;
+        }
+        .card-meta {
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+        }
+        .meta-row {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          font-size: 11px;
+        }
+        .meta-key   { color: var(--muted); }
+        .meta-value { color: var(--text); }
+        .meta-value.lang {
+          background: rgba(201,168,76,0.1);
+          color: var(--gold);
+          padding: 1px 6px;
+          border-radius: 2px;
+          font-size: 10px;
+          letter-spacing: 0.05em;
+        }
+        .meta-value.downloads { color: var(--gold); }
+
+        .card-books {
+          margin-top: 0.75rem;
+          padding-top: 0.75rem;
+          border-top: 1px solid var(--border);
+        }
+        .card-books-label { font-size: 10px; color: var(--muted); margin-bottom: 4px; }
+        .book-chip {
+          display: inline-block;
+          font-size: 10px;
+          padding: 2px 7px;
+          background: rgba(255,255,255,0.04);
+          border: 1px solid var(--border);
+          border-radius: 2px;
+          margin: 2px 2px 0 0;
+          color: var(--muted);
+        }
+
+        /* ── RANK CARDS ── */
+        .rank-list { display: flex; flex-direction: column; gap: 8px; }
+        .rank-card {
+          background: var(--surface);
+          border: 1px solid var(--border);
+          border-radius: 4px;
+          padding: 1rem 1.25rem;
+          display: grid;
+          grid-template-columns: 36px 1fr auto;
+          align-items: center;
+          gap: 1rem;
+          transition: border-color 0.15s;
+        }
+        .rank-card:hover { border-color: var(--gold-dim); }
+        .rank-num {
+          font-family: 'Playfair Display', serif;
+          font-size: 1.4rem;
+          color: var(--muted);
+          text-align: center;
+        }
+        .rank-card:first-child .rank-num { color: var(--gold); }
+        .rank-card:nth-child(2) .rank-num { color: #a0a0a0; }
+        .rank-card:nth-child(3) .rank-num { color: #8b6914; }
+        .rank-title {
+          font-family: 'Playfair Display', serif;
+          font-size: 0.95rem;
+          color: var(--text);
+          margin-bottom: 3px;
+        }
+        .rank-author { font-size: 11px; color: var(--muted); }
+        .rank-downloads { text-align: right; }
+        .rank-downloads .num { font-size: 1rem; color: var(--gold); font-weight: 500; }
+        .rank-downloads .label { font-size: 10px; color: var(--muted); }
+
+        /* ── TOAST ── */
+        #toast {
+          position: fixed;
+          bottom: 2rem; right: 2rem;
+          padding: 10px 18px;
+          border-radius: 4px;
+          font-size: 12px;
+          opacity: 0;
+          transform: translateY(10px);
+          transition: all 0.25s;
+          pointer-events: none;
+          z-index: 100;
+        }
+        #toast.show { opacity: 1; transform: translateY(0); }
+        #toast.success { background: rgba(39,174,96,0.15); border: 1px solid #27ae60; color: #27ae60; }
+        #toast.error   { background: rgba(192,57,43,0.15); border: 1px solid var(--red);  color: var(--red); }
+        #toast.info    { background: rgba(201,168,76,0.15); border: 1px solid var(--gold-dim); color: var(--gold); }
+
+        /* ── LOADING ── */
+        .spinner {
+          display: inline-block;
+          width: 14px; height: 14px;
+          border: 2px solid var(--border);
+          border-top-color: var(--gold);
+          border-radius: 50%;
+          animation: spin 0.6s linear infinite;
+          vertical-align: middle;
+          margin-right: 6px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .result-count {
+          font-size: 11px;
+          color: var(--muted);
+          margin-bottom: 1rem;
+          padding-bottom: 0.75rem;
+          border-bottom: 1px solid var(--border);
+        }
+        .result-count span { color: var(--gold); }
+
+        /* ── WELCOME ── */
+        .welcome {
+          padding: 1rem 0;
+        }
+        .welcome-grid {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 1rem;
+          margin-top: 2rem;
+        }
+        .stat-card {
+          background: var(--surface);
+          border: 1px solid var(--border);
+          border-radius: 6px;
+          padding: 1.5rem;
+          text-align: center;
+        }
+        .stat-num {
+          font-family: 'Playfair Display', serif;
+          font-size: 2.5rem;
+          color: var(--gold);
+          line-height: 1;
+          margin-bottom: 0.5rem;
+        }
+        .stat-label { font-size: 11px; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; }
+        .welcome-desc {
+          color: var(--muted);
+          line-height: 1.8;
+          margin-top: 1.5rem;
+          font-size: 12px;
+          max-width: 560px;
+        }
+        .quick-actions {
+          margin-top: 2rem;
+          display: flex;
+          gap: 10px;
+          flex-wrap: wrap;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div>
+        <div class="logo">Liter<span>Alura</span></div>
+    </div>
+    <div class="tagline">Catálogo de libros del dominio público</div>
+    <div class="api-status">
+        <div class="status-dot" id="statusDot"></div>
+        <span id="statusText">verificando api...</span>
+    </div>
+</header>
+
+<div class="app">
+    <nav>
+        <div class="nav-section">
+            <div class="nav-label">General</div>
+            <button class="nav-btn active" onclick="showPanel('welcome')">
+                <span class="icon">⌂</span> Inicio
+            </button>
+        </div>
+        <div class="nav-section">
+            <div class="nav-label">Libros</div>
+            <button class="nav-btn" onclick="showPanel('libros')">
+                <span class="icon">◈</span> Todos los libros
+                <span class="method get">GET</span>
+            </button>
+            <button class="nav-btn" onclick="showPanel('buscar')">
+                <span class="icon">◎</span> Buscar libro
+                <span class="method post">POST</span>
+            </button>
+            <button class="nav-btn" onclick="showPanel('idioma')">
+                <span class="icon">◉</span> Por idioma
+                <span class="method get">GET</span>
+            </button>
+            <button class="nav-btn" onclick="showPanel('top10')">
+                <span class="icon">◆</span> Top 10
+                <span class="method get">GET</span>
+            </button>
+        </div>
+        <div class="nav-section">
+            <div class="nav-label">Autores</div>
+            <button class="nav-btn" onclick="showPanel('autores')">
+                <span class="icon">◈</span> Todos los autores
+                <span class="method get">GET</span>
+            </button>
+            <button class="nav-btn" onclick="showPanel('vivos')">
+                <span class="icon">◎</span> Vivos en año
+                <span class="method get">GET</span>
+            </button>
+        </div>
+        <div class="nav-section">
+            <div class="nav-label">Datos</div>
+            <button class="nav-btn" onclick="showPanel('cargar')">
+                <span class="icon">⇣</span> Cargar desde API
+                <span class="method post">POST</span>
+            </button>
+        </div>
+    </nav>
+
+    <main>
+
+        <!-- WELCOME -->
+        <div class="panel active" id="panel-welcome">
+            <div class="welcome">
+                <div class="panel-header">
+                    <div class="panel-title">Bienvenido</div>
+                    <div class="panel-subtitle">Interfaz para el catálogo LiterAlura · API en localhost:8080</div>
+                </div>
+                <div class="welcome-grid">
+                    <div class="stat-card">
+                        <div class="stat-num" id="statLibros">—</div>
+                        <div class="stat-label">Libros</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-num" id="statAutores">—</div>
+                        <div class="stat-label">Autores</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-num" id="statIdiomas">—</div>
+                        <div class="stat-label">Idiomas</div>
+                    </div>
+                </div>
+                <p class="welcome-desc">
+                    Usa el menú lateral para explorar el catálogo. Puedes buscar libros por título,
+                    filtrar por idioma, consultar autores vivos en un año específico, o cargar
+                    nuevos libros desde la API de Gutendex.
+                </p>
+                <div class="quick-actions">
+                    <button class="btn" onclick="showPanel('buscar')">◎ Buscar libro</button>
+                    <button class="btn" onclick="showPanel('top10')">◆ Ver Top 10</button>
+                    <button class="btn" onclick="showPanel('cargar')">⇣ Cargar datos</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- TODOS LOS LIBROS -->
+        <div class="panel" id="panel-libros">
+            <div class="panel-header">
+                <div class="panel-title">Todos los libros</div>
+                <div class="panel-subtitle">Libros registrados en la base de datos</div>
+                <div class="endpoint-tag">GET /api/libros</div>
+            </div>
+            <button class="btn" onclick="cargarLibros()">↻ Cargar libros</button>
+            <div class="results" id="res-libros"></div>
+        </div>
+
+        <!-- BUSCAR -->
+        <div class="panel" id="panel-buscar">
+            <div class="panel-header">
+                <div class="panel-title">Buscar libro</div>
+                <div class="panel-subtitle">Busca en Gutendex y guarda en la base de datos</div>
+                <div class="endpoint-tag">POST /api/libros/buscar</div>
+            </div>
+            <div class="input-row">
+                <input type="text" id="inputTitulo" placeholder="Título del libro (ej: Don Quijote)" />
+                <button class="btn" onclick="buscarLibro()">Buscar</button>
+            </div>
+            <div class="results" id="res-buscar"></div>
+        </div>
+
+        <!-- POR IDIOMA -->
+        <div class="panel" id="panel-idioma">
+            <div class="panel-header">
+                <div class="panel-title">Libros por idioma</div>
+                <div class="panel-subtitle">Filtra el catálogo por idioma</div>
+                <div class="endpoint-tag">GET /api/libros/idioma/{idioma}</div>
+            </div>
+            <div class="input-row">
+                <select id="selectIdioma">
+                    <option value="en">Inglés (en)</option>
+                    <option value="es">Español (es)</option>
+                    <option value="fr">Francés (fr)</option>
+                    <option value="pt">Portugués (pt)</option>
+                    <option value="zh">Chino (zh)</option>
+                </select>
+                <button class="btn" onclick="cargarPorIdioma()">Filtrar</button>
+            </div>
+            <div class="results" id="res-idioma"></div>
+        </div>
+
+        <!-- TOP 10 -->
+        <div class="panel" id="panel-top10">
+            <div class="panel-header">
+                <div class="panel-title">Top 10 más descargados</div>
+                <div class="panel-subtitle">Los libros más populares del catálogo</div>
+                <div class="endpoint-tag">GET /api/libros/top10</div>
+            </div>
+            <button class="btn" onclick="cargarTop10()">↻ Cargar ranking</button>
+            <div class="results" id="res-top10"></div>
+        </div>
+
+        <!-- AUTORES -->
+        <div class="panel" id="panel-autores">
+            <div class="panel-header">
+                <div class="panel-title">Todos los autores</div>
+                <div class="panel-subtitle">Autores registrados en la base de datos</div>
+                <div class="endpoint-tag">GET /api/autores</div>
+            </div>
+            <button class="btn" onclick="cargarAutores()">↻ Cargar autores</button>
+            <div class="results" id="res-autores"></div>
+        </div>
+
+        <!-- VIVOS EN AÑO -->
+        <div class="panel" id="panel-vivos">
+            <div class="panel-header">
+                <div class="panel-title">Autores vivos en un año</div>
+                <div class="panel-subtitle">Autores cuya vida incluye el año indicado</div>
+                <div class="endpoint-tag">GET /api/autores/vivos/{año}</div>
+            </div>
+            <div class="input-row">
+                <input type="number" id="inputAnio" placeholder="Año (ej: 1850)" min="0" max="2025" />
+                <button class="btn" onclick="cargarVivos()">Consultar</button>
+            </div>
+            <div class="results" id="res-vivos"></div>
+        </div>
+
+        <!-- CARGAR DESDE API -->
+        <div class="panel" id="panel-cargar">
+            <div class="panel-header">
+                <div class="panel-title">Cargar desde Gutendex</div>
+                <div class="panel-subtitle">Importa libros populares desde la API externa (3 páginas)</div>
+                <div class="endpoint-tag">POST /api/libros/cargar</div>
+            </div>
+            <p style="color:var(--muted); font-size:12px; margin-bottom:1.5rem; line-height:1.7;">
+                Esta acción consulta Gutendex y guarda los libros nuevos en la base de datos.<br/>
+                Los libros ya existentes no se duplican. Puede tardar unos segundos.
+            </p>
+            <button class="btn" id="btnCargar" onclick="cargarDesdeAPI()">⇣ Iniciar carga</button>
+            <div class="results" id="res-cargar"></div>
+        </div>
+
+    </main>
+</div>
+
+<div id="toast"></div>
+
+<script>
+    const API = 'http://localhost:8080/api';
+
+    // ── NAVEGACIÓN ──────────────────────────────────────────
+    function showPanel(id) {
+      document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById('panel-' + id).classList.add('active');
+      event.currentTarget.classList.add('active');
+    }
+
+    // ── TOAST ───────────────────────────────────────────────
+    function toast(msg, type = 'info') {
+      const el = document.getElementById('toast');
+      el.textContent = msg;
+      el.className = 'show ' + type;
+      clearTimeout(el._t);
+      el._t = setTimeout(() => el.className = '', 3000);
+    }
+
+    // ── ESTADO API ──────────────────────────────────────────
+    async function checkAPI() {
+      const dot  = document.getElementById('statusDot');
+      const text = document.getElementById('statusText');
+      try {
+        await fetch(`${API}/libros`, { signal: AbortSignal.timeout(3000) });
+        dot.className  = 'status-dot online';
+        text.textContent = 'api activa';
+        loadStats();
+      } catch {
+        dot.className  = 'status-dot offline';
+        text.textContent = 'api no disponible';
+      }
+    }
+
+    // ── STATS WELCOME ────────────────────────────────────────
+    async function loadStats() {
+      try {
+        const [libros, autores] = await Promise.all([
+          fetch(`${API}/libros`).then(r => r.ok ? r.json() : []),
+          fetch(`${API}/autores`).then(r => r.ok ? r.json() : [])
+        ]);
+        document.getElementById('statLibros').textContent  = libros.length  || 0;
+        document.getElementById('statAutores').textContent = autores.length || 0;
+        const idiomas = [...new Set(libros.map(l => l.idioma).filter(Boolean))];
+        document.getElementById('statIdiomas').textContent = idiomas.length || 0;
+      } catch {}
+    }
+
+    // ── RENDER HELPERS ───────────────────────────────────────
+    function loading(containerId) {
+      document.getElementById(containerId).innerHTML =
+        `<p style="color:var(--muted); padding:1rem 0"><span class="spinner"></span>cargando...</p>`;
+    }
+
+    function empty(containerId, msg = 'Sin resultados') {
+      document.getElementById(containerId).innerHTML =
+        `<div class="empty-state"><div class="empty-icon">◌</div><div>${msg}</div></div>`;
+    }
+
+    function renderLibros(libros, containerId) {
+      if (!libros.length) { empty(containerId, 'No hay libros para mostrar'); return; }
+      const html = `
+        <div class="result-count">Mostrando <span>${libros.length}</span> libro${libros.length !== 1 ? 's' : ''}</div>
+        <div class="card-grid">
+          ${libros.map(l => `
+            <div class="card">
+              <div class="card-title">${l.titulo}</div>
+              <div class="card-meta">
+                <div class="meta-row">
+                  <span class="meta-key">autor</span>
+                  <span class="meta-value">${l.autor?.nombre ?? '—'}</span>
+                </div>
+                <div class="meta-row">
+                  <span class="meta-key">idioma</span>
+                  <span class="meta-value lang">${l.idioma ?? '—'}</span>
+                </div>
+                <div class="meta-row">
+                  <span class="meta-key">descargas</span>
+                  <span class="meta-value downloads">${(l.numeroDescargas ?? 0).toLocaleString()}</span>
+                </div>
+              </div>
+            </div>`).join('')}
+        </div>`;
+      document.getElementById(containerId).innerHTML = html;
+    }
+
+    function renderAutores(autores, containerId) {
+      if (!autores.length) { empty(containerId, 'No hay autores para mostrar'); return; }
+      const html = `
+        <div class="result-count">Mostrando <span>${autores.length}</span> autor${autores.length !== 1 ? 'es' : ''}</div>
+        <div class="card-grid">
+          ${autores.map(a => `
+            <div class="card">
+              <div class="card-title">${a.nombre}</div>
+              <div class="card-meta">
+                <div class="meta-row">
+                  <span class="meta-key">nacimiento</span>
+                  <span class="meta-value">${a.añoNacimiento ?? 'Desconocido'}</span>
+                </div>
+                <div class="meta-row">
+                  <span class="meta-key">fallecimiento</span>
+                  <span class="meta-value">${a.añoFallecimiento ?? 'Desconocido'}</span>
+                </div>
+              </div>
+              ${a.libros?.length ? `
+              <div class="card-books">
+                <div class="card-books-label">libros en catálogo</div>
+                ${a.libros.map(l => `<span class="book-chip">${l.titulo}</span>`).join('')}
+              </div>` : ''}
+            </div>`).join('')}
+        </div>`;
+      document.getElementById(containerId).innerHTML = html;
+    }
+
+    function renderTop10(libros) {
+      if (!libros.length) { empty('res-top10', 'No hay libros para mostrar'); return; }
+      const html = `
+        <div class="result-count">Top <span>${libros.length}</span> libros más descargados</div>
+        <div class="rank-list">
+          ${libros.map((l, i) => `
+            <div class="rank-card">
+              <div class="rank-num">${i + 1}</div>
+              <div>
+                <div class="rank-title">${l.titulo}</div>
+                <div class="rank-author">${l.autor?.nombre ?? '—'} · <span style="color:var(--gold-dim)">${l.idioma ?? ''}</span></div>
+              </div>
+              <div class="rank-downloads">
+                <div class="num">${(l.numeroDescargas ?? 0).toLocaleString()}</div>
+                <div class="label">descargas</div>
+              </div>
+            </div>`).join('')}
+        </div>`;
+      document.getElementById('res-top10').innerHTML = html;
+    }
+
+    // ── ACCIONES ────────────────────────────────────────────
+    async function cargarLibros() {
+      loading('res-libros');
+      try {
+        const r = await fetch(`${API}/libros`);
+        if (r.status === 204) { empty('res-libros', 'No hay libros registrados. Usa "Cargar desde API".'); return; }
+        renderLibros(await r.json(), 'res-libros');
+      } catch { empty('res-libros', 'Error al conectar con la API'); toast('Error de conexión', 'error'); }
+    }
+
+    async function buscarLibro() {
+      const titulo = document.getElementById('inputTitulo').value.trim();
+      if (!titulo) { toast('Ingresa un título', 'error'); return; }
+      loading('res-buscar');
+      try {
+        const r = await fetch(`${API}/libros/buscar`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ titulo })
+        });
+        if (r.status === 404) { empty('res-buscar', `No se encontró "${titulo}" en Gutendex`); return; }
+        if (r.status === 400) { const e = await r.json(); toast(e.error, 'error'); empty('res-buscar', e.error); return; }
+        if (!r.ok) { empty('res-buscar', 'Error al conectar con la API'); return; }
+        const libro = await r.json();
+        renderLibros([libro], 'res-buscar');
+        toast('Libro guardado correctamente', 'success');
+        loadStats();
+      } catch { empty('res-buscar', 'Error al conectar con la API'); toast('Error de conexión', 'error'); }
+    }
+
+    async function cargarPorIdioma() {
+      const idioma = document.getElementById('selectIdioma').value;
+      loading('res-idioma');
+      try {
+        const r = await fetch(`${API}/libros/idioma/${idioma}`);
+        if (r.status === 204) { empty('res-idioma', `No hay libros en ese idioma`); return; }
+        renderLibros(await r.json(), 'res-idioma');
+      } catch { empty('res-idioma', 'Error al conectar con la API'); toast('Error de conexión', 'error'); }
+    }
+
+    async function cargarTop10() {
+      loading('res-top10');
+      try {
+        const r = await fetch(`${API}/libros/top10`);
+        if (r.status === 204) { empty('res-top10', 'No hay libros registrados'); return; }
+        renderTop10(await r.json());
+      } catch { empty('res-top10', 'Error al conectar con la API'); toast('Error de conexión', 'error'); }
+    }
+
+    async function cargarAutores() {
+      loading('res-autores');
+      try {
+        const r = await fetch(`${API}/autores`);
+        if (r.status === 204) { empty('res-autores', 'No hay autores registrados'); return; }
+        renderAutores(await r.json(), 'res-autores');
+      } catch { empty('res-autores', 'Error al conectar con la API'); toast('Error de conexión', 'error'); }
+    }
+
+    async function cargarVivos() {
+      const año = document.getElementById('inputAnio').value.trim();
+      if (!año) { toast('Ingresa un año', 'error'); return; }
+      loading('res-vivos');
+      try {
+        const r = await fetch(`${API}/autores/vivos/${año}`);
+        if (r.status === 400) { const e = await r.json(); toast(e.error, 'error'); empty('res-vivos', e.error); return; }
+        if (r.status === 204) { empty('res-vivos', `No se encontraron autores vivos en ${año}`); return; }
+        renderAutores(await r.json(), 'res-vivos');
+      } catch { empty('res-vivos', 'Error al conectar con la API'); toast('Error de conexión', 'error'); }
+    }
+
+    async function cargarDesdeAPI() {
+      const btn = document.getElementById('btnCargar');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span> cargando...';
+      document.getElementById('res-cargar').innerHTML =
+        `<p style="color:var(--muted); padding:1rem 0; font-size:12px">Consultando Gutendex, esto puede tardar 10-20 segundos...</p>`;
+      try {
+        const r = await fetch(`${API}/libros/cargar`, { method: 'POST' });
+        const data = await r.json();
+        document.getElementById('res-cargar').innerHTML =
+          `<div style="color:var(--green); padding:1rem 0; font-size:12px">✓ ${data.mensaje}</div>`;
+        toast('Carga completada', 'success');
+        loadStats();
+      } catch {
+        document.getElementById('res-cargar').innerHTML =
+          `<div style="color:var(--red); padding:1rem 0; font-size:12px">✗ Error al conectar con la API</div>`;
+        toast('Error de conexión', 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '⇣ Iniciar carga';
+      }
+    }
+
+    // Enter en inputs
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('inputTitulo').addEventListener('keydown', e => { if (e.key === 'Enter') buscarLibro(); });
+      document.getElementById('inputAnio').addEventListener('keydown',  e => { if (e.key === 'Enter') cargarVivos(); });
+      checkAPI();
+    });
+</script>
+</body>
+</html>
