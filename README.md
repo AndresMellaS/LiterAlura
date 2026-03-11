@@ -199,4 +199,4 @@ src/main/java/com/example/literalura/
 
 ## Autor
 
-**Andrés Mellas** · Challenge Backend — Oracle Next Education + Alura Latam
+**Daniel Sepúlveda M** · Challenge Backend — Oracle Next Education + Alura Latam
