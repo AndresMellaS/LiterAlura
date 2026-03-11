@@ -4,6 +4,20 @@ Catálogo de libros del dominio público construido con **Spring Boot**, consumi
 
 ---
 
+## Tabla de contenidos
+
+- [Tecnologías](#tecnologías)
+- [Funcionalidades](#funcionalidades)
+- [Configuración](#configuración)
+- [Cómo ejecutar](#cómo-ejecutar)
+- [Frontend](#frontend)
+- [Endpoints REST](#endpoints-rest)
+- [Estructura del proyecto](#estructura-del-proyecto)
+- [Capturas](#capturas)
+- [Autor](#autor)
+
+---
+
 ## Tecnologías
 
 - Java 25 · Spring Boot 4.0.3
@@ -28,67 +42,10 @@ Catálogo de libros del dominio público construido con **Spring Boot**, consumi
 
 ---
 
-## Capturas
-
-### Consola — Menú principal
-![Menú consola](assets/consola-menu.png)
-
-### Consola — Búsqueda de libro
-![Búsqueda consola](assets/consola-buscar.png)
-
-### Consola — Top 10 más descargados
-![Top 10 consola](assets/consola-top10.png)
-
-### Consola — Autores vivos en un año
-![Autores vivos consola](assets/consola-autores-vivos.png)
-
-### Frontend — Inicio con estadísticas
-![Frontend inicio](assets/frontend-inicio.png)
-
-### Frontend — Búsqueda de libro
-![Frontend búsqueda](assets/frontend-buscar.png)
-
-### Frontend — Top 10
-![Frontend top 10](assets/frontend-top10.png)
-
-### API REST — GET /api/libros/top10 (Postman)
-![Postman top10](assets/postman-top10.png)
-
-### API REST — GET /api/autores/vivos/{año} (Postman)
-![Postman autores vivos](assets/postman-autores-vivos.png)
-
-### API REST — POST /api/libros/buscar (Postman)
-![Postman buscar](assets/postman-buscar.png)
-
----
-
-## Endpoints REST
-
-| Método | Endpoint | Descripción |
-|--------|----------|-------------|
-| GET | `/api/libros` | Todos los libros |
-| GET | `/api/libros/idioma/{idioma}` | Libros por idioma (es, en, fr, pt, zh) |
-| GET | `/api/libros/top10` | Top 10 más descargados |
-| POST | `/api/libros/buscar` | Buscar y guardar libro por título |
-| POST | `/api/libros/cargar` | Cargar libros desde Gutendex |
-| GET | `/api/autores` | Todos los autores |
-| GET | `/api/autores/vivos/{año}` | Autores vivos en un año dado |
-
-### Ejemplo — Buscar libro
-```http
-POST /api/libros/buscar
-Content-Type: application/json
-
-{
-    "titulo": "don quijote"
-}
-```
-
----
-
 ## Configuración
 
 ### Requisitos
+
 - Java 21+
 - PostgreSQL
 - Maven
@@ -107,15 +64,69 @@ SPRING_PROFILE=dev
 Configura estas variables en **IntelliJ → Run → Edit Configurations → Environment variables**.
 
 ### Perfiles
+
 - `dev` — muestra SQL en consola, logs detallados
 - `prod` — silencioso, solo errores
 
-### Ejecutar
+---
+
+## Cómo ejecutar
+
+### 1. Iniciar la aplicación
+
 ```bash
-mvn spring:boot run
+mvn spring-boot:run
 ```
 
-La app inicia el menú de consola y el servidor en `http://localhost:8080` simultáneamente.
+La app inicia el menú de consola **y** el servidor REST simultáneamente.
+
+### 2. Usar la consola
+
+El menú interactivo aparece en la terminal. Escribe el número de la opción y presiona Enter.
+
+### 3. Usar el frontend
+
+Abre `http://localhost:8080` en el navegador. El frontend se sirve automáticamente desde Spring Boot.
+
+### 4. Usar la API con Postman
+
+Apunta las peticiones a `http://localhost:8080/api`.
+
+---
+
+## Frontend
+
+Interfaz web incluida en la app, servida desde `localhost:8080`. Incluye:
+
+- Panel de inicio con estadísticas en tiempo real (libros, autores, idiomas)
+- Acciones rápidas: **Buscar libro**, **Ver Top 10**, **Cargar desde API**
+- Navegación lateral con todas las funciones disponibles
+- Indicador de estado de la API en tiempo real
+
+---
+
+## Endpoints REST
+
+| Método | Endpoint | Descripción |
+|--------|----------|-------------|
+| GET | `/api/libros` | Todos los libros |
+| GET | `/api/libros/idioma/{idioma}` | Libros por idioma (es, en, fr, pt, zh) |
+| GET | `/api/libros/top10` | Top 10 más descargados |
+| POST | `/api/libros/buscar` | Buscar y guardar libro por título |
+| POST | `/api/libros/cargar` | Cargar libros desde Gutendex |
+| GET | `/api/autores` | Todos los autores |
+| GET | `/api/autores/vivos/{año}` | Autores vivos en un año dado |
+
+### Ejemplo — Buscar libro
+
+```http
+POST /api/libros/buscar
+Content-Type: application/json
+
+{
+    "titulo": "don quijote"
+}
+```
 
 ---
 
@@ -149,9 +160,40 @@ src/main/java/com/example/literalura/
 
 ---
 
-## Frontend
+## Capturas
 
-El archivo `index.html` es un cliente standalone que consume la API REST. Ábrelo directamente en el navegador con la app corriendo. No requiere instalación ni servidor adicional.
+### Consola — Menú principal
+![Menú consola](assets/consola-menu.png)
+
+### Consola — Búsqueda de libro
+![Búsqueda consola](assets/consola-buscar.png)
+
+### Consola — Top 10 más descargados
+![Top 10 consola](assets/consola-top10.png)
+
+### Consola — Autores vivos en un año
+![Autores vivos consola](assets/consola-autores-vivos.png)
+
+### Frontend — Inicio con estadísticas
+![Frontend inicio](assets/frontend-inicio.png)
+
+### Frontend — Búsqueda de libro
+![Frontend búsqueda](assets/frontend-buscar.png)
+
+### Frontend — Top 10 más descargados
+![Frontend top 10](assets/frontend-top10.png)
+
+### Frontend — Autores vivos en un año
+![Frontend autores vivos](assets/frontend-autores-vivos.png)
+
+### API REST — GET /api/libros/top10 (Postman)
+![Postman top10](assets/postman-top10.png)
+
+### API REST — GET /api/autores/vivos/{año} (Postman)
+![Postman autores vivos](assets/postman-autores-vivos.png)
+
+### API REST — POST /api/libros/buscar (Postman)
+![Postman buscar](assets/postman-buscar.png)
 
 ---
 
